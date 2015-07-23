@@ -8,7 +8,8 @@ def get_with_cookie(uri, old_cookie, http)
 	res= Net::HTTP.get_response('localhost', uri, 3000)
 	req = Net::HTTP::Get.new(uri)
 	req['Cookie']= old_cookie
-	arr=[res.body, req['Set-Cookie'], http.request(req)]
+	output= http.request(req)
+	arr=[res.body, req['Set-Cookie'], output]
 	return arr
 	#returns [body, new_cookie, output]
 end
@@ -37,11 +38,12 @@ get_homepage_request['Cookie'] = login_output['Set-Cookie']
 get_homepage_output = http.request(get_homepage_request)
 
 #request 3: GET ALUM1
-get_alum1_request = Net::HTTP::Get.new('/alums/1')
-get_alum1_request['Cookie'] = get_homepage_output['Set-Cookie']
-get_alum1_output = http.request(get_alum1_request)
+#get_alum1_request = Net::HTTP::Get.new('/alums/1')
+#get_alum1_request['Cookie'] = get_homepage_output['Set-Cookie']
+#get_alum1_output = http.request(get_alum1_request)
 
 get_alum1_arr = get_with_cookie('/alums/1',get_homepage_output['Set-Cookie'],http)
+get_alum1_output= get_alum1_arr[2]
 
 #request 4: EDIT ALUM8's UID
 edit_alum_request = Net::HTTP::Get.new('/alums/8')
