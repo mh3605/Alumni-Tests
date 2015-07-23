@@ -33,16 +33,19 @@ get_alum1_request['Cookie'] = get_homepage_output['Set-Cookie']
 get_alum1_output = http.request(get_alum1_request)
 
 #request 4: EDIT ALUM8's UID
-edit_alum_res = Net::HTTP.get_response('localhost', '/alums/8/edit', 3000) #crashes here, because user has no permission to edit alums and is redirected to '/' 
-																			#you can see in the log it prints out that USER_ADMIN is false when it should be true
-																			#I'm assuming it's because the user is stored in the cookie and the response doesn't have that (?) 
+
+edit_alum_res = Net::HTTP.get_response('localhost', '/alums/8/edit', 3000) 
+#crashes on the line above (36), because user has no permission to edit alums and is redirected to '/' 
+#you can see in the log it prints out that USER_ADMIN is false when it should be true
+#I'm assuming it's because the user is stored in the cookie and the response doesn't have that (?) 
+
 edit_alum_res['Cookie'] = get_alum1_output['Set-Cookie']
 edit_alum_res.body =~ /name="authenticity_token" value="(.*)"/
 edit_alum_form_token = $1
 
 edit_alum_request = Net::HTTP::Patch.new('/alums/8')
 edit_alum_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>edit_alum_form_token, "alum[uid]"=>"3894", "commit"=>"Update Alum", "id"=>"8"})
-edit_alum_request['Cookie'] = get_alum1_output['Set-Cookie']
+edit_alum_request['Cookie'] = edit_alum_res'Set-Cookie']
 edit_alum_output = http.request(edit_alum_request)
 
 
