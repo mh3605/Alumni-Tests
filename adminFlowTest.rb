@@ -3,6 +3,10 @@ require "net/http"
 require "uri"
 http = Net::HTTP.new('localhost', 3000)
 
+### 1. Delete 2002 from years
+### 2. Delete Jonathon Katz
+### 3. Change Elaine Shi's research area to something thats not security
+
 def get_with_cookie(uri, old_cookie, http)
 	#res= Net::HTTP.get_response('localhost', uri, 3000)
 	req = Net::HTTP::Get.new(uri)
@@ -10,8 +14,6 @@ def get_with_cookie(uri, old_cookie, http)
 	output= http.request(req) #html body
 	(output.body=~ /name="authenticity_token" value="(.*)"/)
 	token =$1
-	#puts "Request body:#{output.body}"
-	#puts "Token is: #{token}"
 	arr=[token, req['Set-Cookie'], output]
 	return arr
 	#returns [token, new_cookie, output]
@@ -33,6 +35,17 @@ def post_with_cookie(uri, form_info, old_cookie, http)
 	req.set_form_data(form_info)
 	req['Cookie']= old_cookie
 	output= http.request(req) #html body
+	(output.body=~ /name="authenticity_token" value="(.*)"/)
+	token =$1
+	arr=[token, req['Set-Cookie'], output]
+	return arr
+end
+
+#not tested yet
+def delete_with_cookie(uri, old_cookie, http)
+	req= Net::HTTP::Delete.new(uri)
+	req['Cookie']= old_cookie
+	output= http.request(req)
 	(output.body=~ /name="authenticity_token" value="(.*)"/)
 	token =$1
 	arr=[token, req['Set-Cookie'], output]
@@ -70,20 +83,20 @@ get_homepage_arr = get_with_cookie('/', login_output['Set-Cookie'],http)
 #request 3: GET ALUM1
 get_alum1_arr = get_with_cookie('/alums/1',get_homepage_arr[2]['Set-Cookie'],http)
 
-#request 4: GET ALUM8
+#request 4A: GET ALUM8
 get_alum8_arr = get_with_cookie('/alums/8', get_alum1_arr[2]['Set-Cookie'],http)
 
-#request 5: GET ALUM8/EDIT
+#request 4B: GET ALUM8/EDIT
 edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cookie'],http)
 #puts edit_alum8_arr[0] #token
 
-#request 6: EDIT ALUM8
+#request 4C: EDIT ALUM8
 new_uid= rand(1..1000)
 puts "Sarah's new UID shoudl be #{new_uid}."
 
 edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>edit_alum8_arr[0], "alum[name]"=>"Sarah",
 								 "alum[uid]"=>new_uid, "alum[email]"=>"", "alum[phone]"=>"", 
-								"alum[about]"=>"", "alum[faculty_id]"=>"2", "alum[year_id]"=>"", "alum[department_id]"=>"", 
+								"alum[about]"=>"", "alum[faculty_id]"=>"2", "alum[year_id]"=>"", "alum[department_id]"=>"1", 
 								"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"}
 edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_alum8_arr[2]['Set-Cookie'], http)
 
@@ -98,18 +111,31 @@ edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_alum8_arr[2][
 			edit_alum8_output = http.request(edit_alum8_request)
 =end
 
-#request 7: ADD NEW YEAR 
-add_new_year_arr= get_with_cookie('/years/new', edit_alum8_arr[2]['Set-Cookie'], http)
+#request 5A: GET NEW YEARS 
+get_years_arr= get_with_cookie('/years/new', edit_alum8_arr[2]['Set-Cookie'], http)
 
-add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>add_new_year_arr[0], "year[yr]"=>"2002", "commit"=>"Create Year"}
-edit_alum8_arr= post_with_cookie('/years', add_new_year_form, add_new_year_arr[2]['Set-Cookie'], http)
+#request 5B: ADD NEW YEAR
+add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>get_years_arr[0], "year[yr]"=>"2002", "commit"=>"Create Year"}
+add_new_year_arr= post_with_cookie('/years', add_new_year_form, get_years_arr[2]['Set-Cookie'], http)
 
+#request 6A: GET NEW FACULTIES
+get_faculties_arr = get_with_cookie('/faculties/new', add_new_year_arr[2]['Set-Cookie'],http)
 
+#request 6B: ADD NEW FACULTY
+add_new_faculty_form= {"utf8"=>"✓", "authenticity_token"=>get_faculties_arr[0], "faculty[name]"=>"Jonathon Katz", 
+						"faculty[uid]"=>"932804", "faculty[email]"=> "katz@cs.umd.edu", "faculty[about]"=> "all about dr. katz", 
+						"faculty[department_id]"=>"", "faculty[researcharea_id]"=>"3", "commit"=>"Create Faculty" }
+add_new_faculty_arr= post_with_cookie('/faculties', add_new_faculty_form, get_faculties_arr[2]['Set-Cookie'], http)
 
+#request 7A: GET FACULTY2/EDIT
+get_faculty2_arr= get_with_cookie('/faculties/2/edit', add_new_faculty_arr[2]['Set-Cookie'],http)
+#puts edit_alum8_arr[0] #token
 
-
-
-
+#request 7B: EDIT FACUTLY2
+edit_faculty2_form= {"utf8"=>"✓", "authenticity_token"=>get_faculty2_arr[0], "faculty[name]"=>"Elaine Shi", 
+						"faculty[uid]"=>"932804", "faculty[email]"=> "shi@cs.umd.edu", "faculty[about]"=> "all about Elaine", 
+						"faculty[department_id]"=>"1", "faculty[researcharea_id]"=>"1", "commit"=>"Update Faculty" }
+edit_faculty2_arr= patch_with_cookie('/faculties/2', edit_faculty2_form, get_faculty2_arr[2]['Set-Cookie'], http)
 
 
 
