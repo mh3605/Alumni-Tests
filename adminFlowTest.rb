@@ -8,14 +8,14 @@ def get_with_cookie(uri, old_cookie, http)
 	#res= Net::HTTP.get_response('localhost', uri, 3000)
 	req = Net::HTTP::Get.new(uri)
 	req['Cookie']= old_cookie
-	output= http.request(req)
-	token= (req.body=~ /name="authenticity_token" value="(.*)"/)
-	puts "Request body:#{req.body}"
-	puts "Token is: #{token}"
+	output= http.request(req) #html body
+	(output.body=~ /name="authenticity_token" value="(.*)"/)
+	token =$1
+	#puts "Request body:#{output.body}"
+	#puts "Token is: #{token}"
 	arr=[token, req['Set-Cookie'], output]
-	puts req.body
 	return arr
-	#returns [body, new_cookie, output]
+	#returns [token, new_cookie, output]
 end
 
 start_time= Time.now
@@ -25,8 +25,8 @@ Net::HTTP.get('localhost', '/', 3000)
 login_res = Net::HTTP.get_response('localhost', '/profile/users/sign_in', 3000)
 login_res.body =~ /name="authenticity_token" value="(.*)"/ #get the token from the response
 login_form_token = $1
-puts " \n\n Login form authenticity token is: #{login_form_token}\n\n"
-puts " Login Cookie is #{login_res['Set-Cookie']}\n\n"
+#puts " \n\n Login form authenticity token is: #{login_form_token}\n\n"
+#puts " Login Cookie is #{login_res['Set-Cookie']}\n\n"
 
 
 login_request = Net::HTTP::Post.new('/profile/users/sign_in')
@@ -59,30 +59,19 @@ get_alum8_arr = get_with_cookie('/alums/8', get_alum1_arr[2]['Set-Cookie'],http)
 
 #request 5: GET ALUM8/EDIT
 edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cookie'],http)
+puts edit_alum8_arr[0] 
+
+edit_alum8_request = Net::HTTP::Patch.new('/alums/8')
+edit_alum8_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>edit_alum8_arr[0], "alum[name]"=>"Sarah",
+								 "alum[uid]"=>"250", "alum[email]"=>"", "alum[phone]"=>"", 
+								"alum[about]"=>"", "alum[faculty_id]"=>"", "alum[year_id]"=>"", "alum[department_id]"=>"", 
+								"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"})
+edit_alum8_request['Cookie'] = get_alum8_arr[2]['Set-Cookie']
+edit_alum8_output = http.request(edit_alum8_request)
 
 
 
 
-
-
-#get_alum8_request = Net::HTTP::Get.new('/alums/8')
-#get_alum8_request['Cookie'] = get_alum1_arr[2]['Set-Cookie']
-#get_alum8_output = http.request(get_alum8_request)
-
-
-#edit_alum_res = Net::HTTP.get_response('localhost', '/alums/8/edit', 3000) 
-#crashes on the line above (36), because user has no permission to edit alums and is redirected to '/' 
-#you can see in the log it prints out that USER_ADMIN is false when it should be true
-#I'm assuming it's because the user is stored in the cookie and the response doesn't have that (?) 
-
-#edit_alum_res['Cookie'] = get_alum1_output['Set-Cookie']
-#edit_alum_res.body =~ /name="authenticity_token" value="(.*)"/
-#edit_alum_form_token = $1
-
-#edit_alum_request = Net::HTTP::Patch.new('/alums/8')
-#edit_alum_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>edit_alum_form_token, "alum[uid]"=>"3894", "commit"=>"Update Alum", "id"=>"8"})
-#edit_alum_request['Cookie'] = edit_alum_res['Set-Cookie']
-#edit_alum_output = http.request(edit_alum_request)
 
 
 #puts out2
