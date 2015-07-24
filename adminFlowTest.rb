@@ -27,16 +27,17 @@ def patch_with_cookie(uri, form_info, old_cookie, http)
 	arr=[token, req['Set-Cookie'], output]
 	return arr
 end
-=begin
-edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_alum8_arr[2], http)
-edit_alum8_request = Net::HTTP::Patch.new('/alums/8')
-edit_alum8_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>edit_alum8_arr[0], "alum[name]"=>"Sarah",
-								 "alum[uid]"=>"250", "alum[email]"=>"", "alum[phone]"=>"", 
-								"alum[about]"=>"", "alum[faculty_id]"=>"", "alum[year_id]"=>"", "alum[department_id]"=>"", 
-								"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"})
-edit_alum8_request['Cookie'] = get_alum8_arr[2]['Set-Cookie']
-edit_alum8_output = http.request(edit_alum8_request)
-=end
+
+def post_with_cookie(uri, form_info, old_cookie, http)
+	req= Net::HTTP::Post.new(uri)
+	req.set_form_data(form_info)
+	req['Cookie']= old_cookie
+	output= http.request(req) #html body
+	(output.body=~ /name="authenticity_token" value="(.*)"/)
+	token =$1
+	arr=[token, req['Set-Cookie'], output]
+	return arr
+end
 
 start_time= Time.now
 
@@ -76,6 +77,7 @@ get_alum8_arr = get_with_cookie('/alums/8', get_alum1_arr[2]['Set-Cookie'],http)
 edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cookie'],http)
 #puts edit_alum8_arr[0] #token
 
+#request 6: EDIT ALUM8
 new_uid= rand(1..1000)
 puts "Sarah's new UID shoudl be #{new_uid}."
 
@@ -87,14 +89,27 @@ edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_alum8_arr[2][
 
 
 =begin #patch alum with patchwithcookie method
-edit_alum8_request = Net::HTTP::Patch.new('/alums/8')
-edit_alum8_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>edit_alum8_arr[0], "alum[name]"=>"Sarah",
-								 "alum[uid]"=>"250", "alum[email]"=>"", "alum[phone]"=>"", 
-								"alum[about]"=>"", "alum[faculty_id]"=>"", "alum[year_id]"=>"", "alum[department_id]"=>"", 
-								"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"})
-edit_alum8_request['Cookie'] = get_alum8_arr[2]['Set-Cookie']
-edit_alum8_output = http.request(edit_alum8_request)
+			edit_alum8_request = Net::HTTP::Patch.new('/alums/8')
+			edit_alum8_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>edit_alum8_arr[0], "alum[name]"=>"Sarah",
+											 "alum[uid]"=>"250", "alum[email]"=>"", "alum[phone]"=>"", 
+											"alum[about]"=>"", "alum[faculty_id]"=>"", "alum[year_id]"=>"", "alum[department_id]"=>"", 
+											"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"})
+			edit_alum8_request['Cookie'] = get_alum8_arr[2]['Set-Cookie']
+			edit_alum8_output = http.request(edit_alum8_request)
 =end
+
+#request 7: ADD NEW YEAR 
+add_new_year_arr= get_with_cookie('/years/new', edit_alum8_arr[2]['Set-Cookie'], http)
+
+add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>add_new_year_arr[0], "year[yr]"=>"2002", "commit"=>"Create Year"}
+edit_alum8_arr= post_with_cookie('/years', add_new_year_form, add_new_year_arr[2]['Set-Cookie'], http)
+
+
+
+
+
+
+
 
 
 
