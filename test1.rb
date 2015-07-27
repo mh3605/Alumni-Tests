@@ -40,9 +40,9 @@ get_alum3_arr = get_with_cookie('/alums/3', get_alum2_arr[2]['Set-Cookie'],http)
 
 #SIGNOUT
 signout_request= Net::HTTP::Delete.new('/profile/users/sign_out')
-	signout_request.set_form_data({"authenticity_token"=>get_alum3_arr[0]})
-	signout_request['Cookie']= get_alum3_arr[2]['Set-Cookie']
-	output= http.request(signout_request) #html body
+signout_request.set_form_data({"authenticity_token"=>get_alum3_arr[0]})
+signout_request['Cookie']= get_alum3_arr[2]['Set-Cookie']
+output= http.request(signout_request) #html body
 
 end
 
