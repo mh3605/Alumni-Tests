@@ -9,7 +9,7 @@ start_time= Time.now
 80.times do
 Net::HTTP.get('localhost', '/', 3000) #main alums index
 Net::HTTP.get('localhost', '/alums/1', 3000) #michelle's show
-Net::HTTP.get('localhost', '/fauclties/1', 3000) #link to Dr. Foster's page
+Net::HTTP.get('localhost', '/faculties/1', 3000) #link to Dr. Foster's page
 Net::HTTP.get('localhost', '/alums/2', 3000) #eric
 Net::HTTP.get('localhost', '/years/1', 3000) #2015
 Net::HTTP.get('localhost', '/years', 3000) #clicked back button

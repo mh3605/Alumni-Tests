@@ -71,6 +71,38 @@ def editAlum8Loop(initial_array, x, http)
 	return edit_alum8_arr
 end
 
+def browsingSiteLoop(initial_array, x, http)
+	last_arr_in_loop = initial_array
+
+	x.times do
+	get_homepage_arr = get_with_cookie('/', last_arr_in_loop[2]['Set-Cookie'],http)
+	get_alum1_arr = get_with_cookie('/alums/1',get_homepage_arr[2]['Set-Cookie'],http)
+	get_faculty1_arr = get_with_cookie('/faculties/1', get_alum1_arr[2]['Set-Cookie'],http)
+	get_alum2_arr = get_with_cookie('/alums/2', get_faculty1_arr[2]['Set-Cookie'],http)
+	get_year1_arr = get_with_cookie('/years/1', get_alum2_arr[2]['Set-Cookie'],http)
+	get_years_arr = get_with_cookie('/years', get_year1_arr[2]['Set-Cookie'],http)
+	get_departments_arr = get_with_cookie('/departments', get_years_arr[2]['Set-Cookie'],http)
+	get_department1_arr = get_with_cookie('/departments/1', get_departments_arr[2]['Set-Cookie'],http)
+	last_arr_in_loop= get_department1_arr
+	end
+
+	return last_arr_in_loop
+end
+
+def add_new_year_loop(initial_array, x, http)
+	last_arr_in_loop = initial_array
+
+	x.times do
+	rand_new_year= rand(1856..2015)
+	add_new_year_arr= get_with_cookie('/years/new', last_arr_in_loop[2]['Set-Cookie'], http)
+
+	add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>add_new_year_arr[0], "year[yr]"=>rand_new_year, "commit"=>"Create Year"}
+	add_new_year_arr= post_with_cookie('/years', add_new_year_form, add_new_year_arr[2]['Set-Cookie'], http)
+	last_arr_in_loop= add_new_year_arr
+	end 
+end
+
+
 start_time= Time.now
 
 Net::HTTP.get('localhost', '/', 3000)
@@ -163,15 +195,14 @@ get_initialemployers_arr = get_with_cookie('/initialemployers/new', edit_faculty
 add_new_initialemployer_form= {"utf8"=>"✓", "authenticity_token"=>get_initialemployers_arr[0], "initialemployer[name]"=>"Microsoft", "commit"=>"Create Initialemployer" }
 add_new_initialemployer_arr= post_with_cookie('/initialemployers', add_new_initialemployer_form, get_initialemployers_arr[2]['Set-Cookie'], http)
 
+#request 9: Edit alum8 UID loop
+edit_alum8_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 5, http)
 
+#request 10: Browsing site loop
+browsing_loop_arr= browsingSiteLoop(edit_alum8_loop_arr, 5, http)
 
-#Edit UID loop
-edit_alum_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 5, http)
-
-
-
-
-
+#request 11: Create new year loop
+add_year_loop_arr= add_new_year_loop(browsing_loop_arr, 5, http)
 
 end_time= Time.now
 
