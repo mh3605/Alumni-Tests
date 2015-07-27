@@ -3,7 +3,7 @@ require "net/http"
 require "uri"
 http = Net::HTTP.new('localhost', 3000)
 
-### 1. Delete 2002 from years
+### 1. Delete 2002 from years and anything else thats not 2015, 2001, 2000. 1990
 ### 2. Delete Jonathon Katz
 ### 3. Change Elaine Shi's research area to something thats not security
 
@@ -42,9 +42,10 @@ def post_with_cookie(uri, form_info, old_cookie, http)
 end
 
 #not tested yet
-def delete_with_cookie(uri, old_cookie, http)
+def delete_with_cookie(uri, token, old_cookie, http)
 	req= Net::HTTP::Delete.new(uri)
 	req['Cookie']= old_cookie
+	req.set_form_data(token)
 	output= http.request(req)
 	(output.body=~ /name="authenticity_token" value="(.*)"/)
 	token =$1
@@ -59,7 +60,7 @@ def editAlum8Loop(initial_array, x, http)
 	get_edit_alum8_arr= get_with_cookie('/alums/8/edit', edit_alum8_arr[2]['Set-Cookie'],http)
 
 	new_uid= rand(1..1000)
-	puts "Sarah's new UID shoudl be #{new_uid}."
+	puts "Sarah's new UID should be #{new_uid}."
 
 	edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>get_edit_alum8_arr[0], "alum[name]"=>"Sarah",
 								 "alum[uid]"=>new_uid, "alum[email]"=>"", "alum[phone]"=>"", 
@@ -93,13 +94,15 @@ def add_new_year_loop(initial_array, x, http)
 	last_arr_in_loop = initial_array
 
 	x.times do
-	rand_new_year= rand(1856..2015)
+	rand_new_year= rand(1856..1989)
 	add_new_year_arr= get_with_cookie('/years/new', last_arr_in_loop[2]['Set-Cookie'], http)
 
 	add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>add_new_year_arr[0], "year[yr]"=>rand_new_year, "commit"=>"Create Year"}
 	add_new_year_arr= post_with_cookie('/years', add_new_year_form, add_new_year_arr[2]['Set-Cookie'], http)
 	last_arr_in_loop= add_new_year_arr
 	end 
+
+	return last_arr_in_loop
 end
 
 
@@ -143,7 +146,7 @@ get_edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cooki
 
 #request 4C: EDIT ALUM8
 new_uid= rand(1..1000)
-puts "Sarah's new UID shoudl be #{new_uid}."
+puts "Sarah's new UID should be #{new_uid}."
 
 edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>get_edit_alum8_arr[0], "alum[name]"=>"Sarah",
 								 "alum[uid]"=>new_uid, "alum[email]"=>"", "alum[phone]"=>"", 
@@ -166,7 +169,7 @@ edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_edit_alum8_ar
 get_years_arr= get_with_cookie('/years/new', edit_alum8_arr[2]['Set-Cookie'], http)
 
 #request 5B: ADD NEW YEAR
-add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>get_years_arr[0], "year[yr]"=>"2002", "commit"=>"Create Year"}
+add_new_year_form= {"utf8"=>"✓", "authenticity_token"=>get_years_arr[0], "year[yr]"=>"1989", "commit"=>"Create Year"}
 add_new_year_arr= post_with_cookie('/years', add_new_year_form, get_years_arr[2]['Set-Cookie'], http)
 
 #request 6A: GET NEW FACULTIES
@@ -196,13 +199,16 @@ add_new_initialemployer_form= {"utf8"=>"✓", "authenticity_token"=>get_initiale
 add_new_initialemployer_arr= post_with_cookie('/initialemployers', add_new_initialemployer_form, get_initialemployers_arr[2]['Set-Cookie'], http)
 
 #request 9: Edit alum8 UID loop
-edit_alum8_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 5, http)
+edit_alum8_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 50, http)
 
 #request 10: Browsing site loop
-browsing_loop_arr= browsingSiteLoop(edit_alum8_loop_arr, 5, http)
+browsing_loop_arr= browsingSiteLoop(edit_alum8_loop_arr, 70, http)
 
 #request 11: Create new year loop
-add_year_loop_arr= add_new_year_loop(browsing_loop_arr, 5, http)
+add_year_loop_arr= add_new_year_loop(browsing_loop_arr, 20, http)
+
+#LAST REQUEST: LOGOUT
+#delete_with_cookie('/profile/users/sign_out', add_year_loop_arr[1], add_year_loop_arr[2]['Set-Cookie'], http)
 
 end_time= Time.now
 
