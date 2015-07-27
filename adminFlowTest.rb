@@ -199,7 +199,7 @@ add_new_initialemployer_form= {"utf8"=>"✓", "authenticity_token"=>get_initiale
 add_new_initialemployer_arr= post_with_cookie('/initialemployers', add_new_initialemployer_form, get_initialemployers_arr[2]['Set-Cookie'], http)
 
 #request 9: Edit alum8 UID loop
-edit_alum8_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 50, http)
+edit_alum8_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 70, http)
 
 #request 10: Browsing site loop
 browsing_loop_arr= browsingSiteLoop(edit_alum8_loop_arr, 70, http)
