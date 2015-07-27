@@ -52,6 +52,25 @@ def delete_with_cookie(uri, old_cookie, http)
 	return arr
 end
 
+def editAlum8Loop(initial_array, x, http)
+	edit_alum8_arr= initial_array
+
+	x.times do
+	get_edit_alum8_arr= get_with_cookie('/alums/8/edit', edit_alum8_arr[2]['Set-Cookie'],http)
+
+	new_uid= rand(1..1000)
+	puts "Sarah's new UID shoudl be #{new_uid}."
+
+	edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>get_edit_alum8_arr[0], "alum[name]"=>"Sarah",
+								 "alum[uid]"=>new_uid, "alum[email]"=>"", "alum[phone]"=>"", 
+								"alum[about]"=>"", "alum[faculty_id]"=>"2", "alum[year_id]"=>"", "alum[department_id]"=>"1", 
+								"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"}
+	edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_edit_alum8_arr[2]['Set-Cookie'], http)
+	end
+
+	return edit_alum8_arr
+end
+
 start_time= Time.now
 
 Net::HTTP.get('localhost', '/', 3000)
@@ -87,18 +106,18 @@ get_alum1_arr = get_with_cookie('/alums/1',get_homepage_arr[2]['Set-Cookie'],htt
 get_alum8_arr = get_with_cookie('/alums/8', get_alum1_arr[2]['Set-Cookie'],http)
 
 #request 4B: GET ALUM8/EDIT
-edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cookie'],http)
+get_edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cookie'],http)
 #puts edit_alum8_arr[0] #token
 
 #request 4C: EDIT ALUM8
 new_uid= rand(1..1000)
 puts "Sarah's new UID shoudl be #{new_uid}."
 
-edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>edit_alum8_arr[0], "alum[name]"=>"Sarah",
+edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>get_edit_alum8_arr[0], "alum[name]"=>"Sarah",
 								 "alum[uid]"=>new_uid, "alum[email]"=>"", "alum[phone]"=>"", 
 								"alum[about]"=>"", "alum[faculty_id]"=>"2", "alum[year_id]"=>"", "alum[department_id]"=>"1", 
 								"alum[researcharea_id]"=>"", "alum[initialemployer_id]"=>"", "commit"=>"Update Alum", "id"=>"8"}
-edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_alum8_arr[2]['Set-Cookie'], http)
+edit_alum8_arr= patch_with_cookie('/alums/8', edit_alum8_form, get_edit_alum8_arr[2]['Set-Cookie'], http)
 
 
 =begin #patch alum with patchwithcookie method
@@ -136,6 +155,20 @@ edit_faculty2_form= {"utf8"=>"✓", "authenticity_token"=>get_faculty2_arr[0], "
 						"faculty[uid]"=>"932804", "faculty[email]"=> "shi@cs.umd.edu", "faculty[about]"=> "all about Elaine", 
 						"faculty[department_id]"=>"1", "faculty[researcharea_id]"=>"1", "commit"=>"Update Faculty" }
 edit_faculty2_arr= patch_with_cookie('/faculties/2', edit_faculty2_form, get_faculty2_arr[2]['Set-Cookie'], http)
+
+#request 8A: GET NEW INITIAL EMPLOYERS
+get_initialemployers_arr = get_with_cookie('/initialemployers/new', edit_faculty2_arr[2]['Set-Cookie'],http)
+
+#request 8B: ADD NEW INITIAL EMPLOYERS
+add_new_initialemployer_form= {"utf8"=>"✓", "authenticity_token"=>get_initialemployers_arr[0], "initialemployer[name]"=>"Microsoft", "commit"=>"Create Initialemployer" }
+add_new_initialemployer_arr= post_with_cookie('/initialemployers', add_new_initialemployer_form, get_initialemployers_arr[2]['Set-Cookie'], http)
+
+
+
+#Edit UID loop
+edit_alum_loop_arr= editAlum8Loop(add_new_initialemployer_arr, 5, http)
+
+
 
 
 

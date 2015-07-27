@@ -6,7 +6,7 @@ http= Net::HTTP.new(uri.host, uri.port)
 
 start_time= Time.now
 
-50.times do
+80.times do
 Net::HTTP.get('localhost', '/', 3000) #main alums index
 Net::HTTP.get('localhost', '/alums/1', 3000) #michelle's show
 Net::HTTP.get('localhost', '/fauclties/1', 3000) #link to Dr. Foster's page
