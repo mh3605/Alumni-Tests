@@ -66,9 +66,6 @@ add_new_alum_arr= post_with_cookie('/alums', add_new_alum_form, get_alums_arr[2]
 add_new_alum_arr[2].body=~ /localhost:3000\/alums\/(\d*)"/
 new_alum_id= $1
 
-
-#doesn't delete the right alum
-
 #GET ALUMS
 get_alums_arr = get_with_cookie('/alums', add_new_alum_arr[2]['Set-Cookie'],http)
 
