@@ -39,7 +39,7 @@ end
 
 start_time= Time.now
 
-10.times do
+120.times do
 
 #SIGN IN
 login_res = Net::HTTP.get_response('localhost', '/profile/users/sign_in', 3000)
@@ -60,7 +60,6 @@ get_alum8_arr = get_with_cookie('/alums/8', login_output['Set-Cookie'],http)
 get_edit_alum8_arr= get_with_cookie('/alums/8/edit', get_alum8_arr[2]['Set-Cookie'],http)
 
 new_uid= rand(1..1000)
-puts "Sarah's new UID should be #{new_uid}."
 
 edit_alum8_form= {"utf8"=>"✓", "authenticity_token"=>get_edit_alum8_arr[0], "alum[name]"=>"Sarah",
 								 "alum[uid]"=>new_uid, "alum[email]"=>"", "alum[phone]"=>"", 

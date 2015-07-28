@@ -39,7 +39,7 @@ end
 
 start_time= Time.now
 
-20.times do
+100.times do
 #SIGN IN
 login_res = Net::HTTP.get_response('localhost', '/profile/users/sign_in', 3000)
 login_res.body =~ /name="authenticity_token" value="(.*)"/ #get the token from the response

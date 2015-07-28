@@ -37,7 +37,7 @@ end
 
 start_time= Time.now
 
-10.times do
+200.times do
 
 #SIGN UP
 signup_res = Net::HTTP.get_response('localhost', '/profile/users/sign_up', 3000)

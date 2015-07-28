@@ -35,6 +35,10 @@ def put_with_cookie(uri, form_info, old_cookie, http)
 	return arr
 end
 
+start_time= Time.now
+
+120.times do
+
 #SIGN IN
 login_res = Net::HTTP.get_response('localhost', '/profile/users/sign_in', 3000)
 login_res.body =~ /name="authenticity_token" value="(.*)"/ #get the token from the response
@@ -64,6 +68,17 @@ signout_request= Net::HTTP::Delete.new('/profile/users/sign_out')
 signout_request.set_form_data({"authenticity_token"=>get_crsf_token(get_home_arr[2])})
 signout_request['Cookie']= get_home_arr[2]['Set-Cookie']
 output= http.request(signout_request) #html body
+
+end 
+
+end_time= Time.now
+
+diff= end_time-start_time
+diff=diff*1000
+
+puts "Started at: #{start_time}"
+puts "Ended at: #{end_time}"
+puts "Test took #{diff} ms"
 
 
 

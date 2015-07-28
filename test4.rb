@@ -52,7 +52,7 @@ end
 
 start_time= Time.now
 
-10.times do
+80.times do
 
 #SIGN IN
 login_res = Net::HTTP.get_response('localhost', '/profile/users/sign_in', 3000)
@@ -76,7 +76,6 @@ get_faculty2_arr = get_with_cookie('/faculties/2', get_faculties_arr[2]['Set-Coo
 get_edit_faculty2_arr= get_with_cookie('/faculties/2/edit', get_faculty2_arr[2]['Set-Cookie'],http)
 
 new_uid= rand(1..1000)
-puts "Elaine's new UID should be #{new_uid}."
 
 edit_faculty2_form= {"utf8"=>"✓", "authenticity_token"=>get_edit_faculty2_arr[0], "faculty[name]"=>"Elaine Shi", 
 						"faculty[uid]"=>new_uid, "faculty[email]"=> "shi@cs.umd.edu", "faculty[about]"=> "all about Elaine", 
