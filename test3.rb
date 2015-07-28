@@ -74,8 +74,6 @@ get_alum8_arr = get_with_cookie('/alums/8', edit_alum8_arr[2]['Set-Cookie'],http
 #SIGNOUT
 signout_request= Net::HTTP::Delete.new('/profile/users/sign_out')
 signout_request.set_form_data({"authenticity_token"=>get_crsf_token(get_alum8_arr[2])})
-
-
 signout_request['Cookie']= get_alum8_arr[2]['Set-Cookie']
 output= http.request(signout_request) #html body
 
