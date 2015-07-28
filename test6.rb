@@ -34,3 +34,30 @@ def post_with_cookie(uri, form_info, old_cookie, http)
 	arr=[token, req['Set-Cookie'], output]
 	return arr
 end
+
+#SIGN UP
+signup_res = Net::HTTP.get_response('localhost', '/profile/users/sign_up', 3000)
+signup_res.body =~ /name="authenticity_token" value="(.*)"/ #get the token from the response
+signup_form_token = $1
+
+signup_request = Net::HTTP::Post.new('/profile/users/')
+signup_request.set_form_data({"utf8"=>"✓", "authenticity_token"=>signup_form_token,
+                       "user[email]"=>"temp@gmail.com", "user[password]"=>"password",
+                       "user[password_confirmation]"=>"password", "commit"=>"Sign up"})
+signup_request['Cookie'] = signup_res['Set-Cookie']
+signup_output = http.request(signup_request)
+
+#GET /
+get_home_arr = get_with_cookie('/', signup_output['Set-Cookie'],http)
+
+#DELETE ACCOUNT
+delete_account_request= Net::HTTP::Delete.new('/profile/users')
+delete_account_request.set_form_data({"authenticity_token"=>get_crsf_token(get_home_arr[2])})
+delete_account_request['Cookie']= get_home_arr[2]['Set-Cookie']
+output= http.request(delete_account_request) #html body
+
+
+
+
+
+
